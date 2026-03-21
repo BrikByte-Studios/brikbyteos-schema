@@ -1,0 +1,21 @@
+{
+  "schema_family": "verdict",
+  "schema_version": "v0",
+  "verdict": "rejected",
+  "decision_context": {
+    "environment": "production",
+    "target_id": "release-2026-03-21-build-1842"
+  },
+  "policy_summary": {
+    "evaluated_count": 12,
+    "failed_count": 1,
+    "warning_count": 2,
+    "passed_count": 9
+  },
+  "decided_at": "2026-03-21T12:10:00Z",
+  "traceability": {
+    "policy_result_set_ref": "policy-evaluation-result/v0:set:release-2026-03-21-build-1842",
+    "normalized_result_set_ref": "normalized-result/v0:set:release-2026-03-21-build-1842",
+    "audit_bundle_ref": "audit-bundle:release-2026-03-21-build-1842"
+  }
+}
