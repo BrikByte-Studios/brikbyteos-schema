@@ -1,0 +1,86 @@
+{
+  "schema_family": "audit-manifest",
+  "schema_version": "v0",
+  "bundle": {
+    "id": "bundle-2026-03-21-release-1842",
+    "root_path_mode": "bundle-relative"
+  },
+  "created_at": "2026-03-21T12:30:00Z",
+  "artifacts": [
+    {
+      "id": "raw-1",
+      "kind": "raw-result",
+      "path": "artifacts/raw/raw-result-1.json",
+      "media_type": "application/json",
+      "schema_ref": {
+        "family": "raw-result",
+        "version": "v0"
+      }
+    },
+    {
+      "id": "norm-1",
+      "kind": "normalized-result",
+      "path": "artifacts/normalized/normalized-result-1.json",
+      "media_type": "application/json",
+      "schema_ref": {
+        "family": "normalized-result",
+        "version": "v0"
+      }
+    },
+    {
+      "id": "policy-1",
+      "kind": "policy-evaluation-result",
+      "path": "artifacts/policy/policy-result-1.json",
+      "media_type": "application/json",
+      "schema_ref": {
+        "family": "policy-evaluation-result",
+        "version": "v0"
+      }
+    },
+    {
+      "id": "verdict-1",
+      "kind": "verdict",
+      "path": "artifacts/verdict/verdict.json",
+      "media_type": "application/json",
+      "role": "final-release-decision",
+      "schema_ref": {
+        "family": "verdict",
+        "version": "v0"
+      }
+    }
+  ],
+  "schema_inventory": [
+    {
+      "family": "raw-result",
+      "version": "v0"
+    },
+    {
+      "family": "normalized-result",
+      "version": "v0"
+    },
+    {
+      "family": "policy-evaluation-result",
+      "version": "v0"
+    },
+    {
+      "family": "verdict",
+      "version": "v0"
+    }
+  ],
+  "key_refs": {
+    "verdict_artifact_id": "verdict-1",
+    "raw_result_artifact_ids": [
+      "raw-1"
+    ],
+    "normalized_result_artifact_ids": [
+      "norm-1"
+    ],
+    "policy_result_artifact_ids": [
+      "policy-1"
+    ]
+  },
+  "integrity": {
+    "status": "not-recorded",
+    "notes": "Reserved for future hash/signature metadata."
+  }
+}
