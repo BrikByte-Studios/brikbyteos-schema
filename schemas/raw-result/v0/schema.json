@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.brikbyte.dev/raw-result/v0/schema.json",
+  "title": "BrikByteOS Raw Result v0",
+  "description": "Canonical raw execution evidence captured directly from adapter/tool invocation before normalization, policy evaluation, or AI augmentation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_family",
+    "schema_version",
+    "adapter",
+    "execution"
+  ],
+  "properties": {
+    "schema_family": {
+      "type": "string",
+      "const": "raw-result",
+      "description": "Stable schema family identity."
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "v0",
+      "description": "Explicit schema version namespace."
+    },
+    "adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable adapter identity, such as trivy, playwright, or k6."
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Adapter version if known."
+        }
+      },
+      "description": "Identity of the adapter that performed or wrapped the execution."
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "started_at",
+        "finished_at",
+        "command"
+      ],
+      "properties": {
+        "execution_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional execution correlation identifier."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "success",
+            "failure",
+            "timeout",
+            "cancelled",
+            "unknown"
+          ],
+          "description": "Outcome of the raw execution itself, not a policy or semantic interpretation."
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "RFC3339 timestamp for execution start."
+        },
+        "finished_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "RFC3339 timestamp for execution end."
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Optional execution duration in milliseconds."
+        },
+        "exit_code": {
+          "type": "integer",
+          "description": "Process exit code where applicable."
+        },
+        "command": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "program"
+          ],
+          "properties": {
+            "program": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Executable or program name invoked."
+            },
+            "args": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Command arguments in order, excluding the program itself."
+            },
+            "display": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Optional human-readable command representation."
+            }
+          },
+          "description": "Raw command invocation representation."
+        },
+        "outputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "stdout": {
+              "$ref": "#/$defs/output_reference"
+            },
+            "stderr": {
+              "$ref": "#/$defs/output_reference"
+            },
+            "extras": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/output_reference"
+              },
+              "description": "Optional additional captured raw output references."
+            }
+          },
+          "description": "References to captured raw output artifacts."
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Optional safe execution metadata. Must remain raw and non-derived.",
+          "propertyNames": {
+            "type": "string",
+            "minLength": 1
+          },
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "integer",
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "timeout"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "exit_code": false
+            }
+          }
+        }
+      ],
+      "description": "Raw execution facts only."
+    }
+  },
+  "$defs": {
+    "output_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Relative or otherwise documented artifact path to captured raw output."
+        },
+        "media_type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional media/content type of the referenced output."
+        },
+        "byte_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Optional size of the referenced output in bytes."
+        }
+      },
+      "description": "Reference to captured raw output; large output should not be inlined by default."
+    }
+  }
+}
