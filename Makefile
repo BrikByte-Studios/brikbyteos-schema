@@ -1,7 +1,12 @@
-.PHONY: validate-examples test
+.PHONY: validate-examples test test-go
 
 ## Validate canonical schema v0 example payloads.
 validate-examples:
 	./scripts/validate-examples.sh
 
-test: validate-examples
+## Run Go schema validation tests.
+test-go:
+	go test ./...
+
+## Run full repository validation baseline.
+test: validate-examples test-go
