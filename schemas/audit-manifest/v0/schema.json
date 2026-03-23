@@ -109,8 +109,18 @@
         "path": {
           "type": "string",
           "minLength": 1,
-          "pattern": "^(?!/)(?![A-Za-z]:).+",
-          "description": "Bundle-relative artifact path. Absolute host-specific paths are not allowed in v0."
+          "allOf": [
+            {
+              "not": {
+                "pattern": "^/"
+              }
+            },
+            {
+              "not": {
+                "pattern": "^[A-Za-z]:"
+              }
+            }
+          ]
         },
         "media_type": {
           "type": "string",
