@@ -178,7 +178,8 @@
               "type": "integer"
             },
             {
-              "type": "number"
+              "type": "number",
+              "not": { "type": "integer" }
             },
             {
               "type": "boolean"
