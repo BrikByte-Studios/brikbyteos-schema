@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "v0",
+  "runId": "20260324T180000Z-a91c2f",
+  "startedAt": "2026-03-24T18:00:00Z",
+  "finishedAt": "2026-03-24T18:00:02Z",
+  "environment": "dev",
+  "executionMode": "all",
+  "selectedAdapters": ["jest", "trivy"],
+  "resolvedAdapterOrder": ["jest", "trivy"]
+}
