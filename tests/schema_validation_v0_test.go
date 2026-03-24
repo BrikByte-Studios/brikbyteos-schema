@@ -192,3 +192,21 @@ func assertIssueContains(t *testing.T, issues []validation.ValidationIssue, want
 		issues,
 	)
 }
+
+func TestRunIdentityV0ExampleIsValid(t *testing.T) {
+	t.Parallel()
+
+	v := validation.New()
+
+	schemaPath := repoPath(t, "schemas/run-identity/v0/schema.json")
+	examplePath := repoPath(t, "schemas/run-identity/v0/examples/valid.minimal.json")
+
+	result, err := v.ValidateFile(schemaPath, examplePath)
+	if err != nil {
+		t.Fatalf("expected validator execution success, got error: %v", err)
+	}
+
+	if !result.Valid {
+		t.Fatalf("expected run identity example to validate, got issues: %+v", result.Issues)
+	}
+}
