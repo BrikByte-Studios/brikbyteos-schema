@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.brikbyteos.dev/normalized-result/v0.1/schema.json",
+  "title": "BrikByteOS Normalized Result v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "adapter",
+    "execution",
+    "summary",
+    "evidence",
+    "artifacts",
+    "extensions"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type", "version"],
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "duration_ms"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["completed", "failed", "timed_out", "unavailable"]
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "total", "passed", "failed", "skipped"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["pass", "fail", "warn", "unknown"]
+        },
+        "total": { "type": "integer", "minimum": 0 },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["complete", "issues"],
+      "properties": {
+        "complete": { "type": "boolean" },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code"],
+            "properties": {
+              "code": { "type": "string" },
+              "message": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "raw_stdout_path": { "type": "string" },
+        "raw_stderr_path": { "type": "string" },
+        "raw_tool_output_path": { "type": "string" }
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["adapter_specific"],
+      "properties": {
+        "adapter_specific": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}
