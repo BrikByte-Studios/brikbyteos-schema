@@ -34,7 +34,13 @@
       "properties": {
         "status": {
           "type": "string",
-          "enum": ["completed", "failed", "timed_out", "unavailable"]
+          "enum": [
+            "completed",
+            "failed",
+            "timed_out",
+            "unavailable",
+            "normalization_failed"
+          ]
         },
         "duration_ms": {
           "type": "integer",
@@ -84,6 +90,24 @@
         "raw_stdout_path": { "type": "string" },
         "raw_stderr_path": { "type": "string" },
         "raw_tool_output_path": { "type": "string" }
+      }
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "message", "details"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "execution_failure",
+            "timeout",
+            "not_found",
+            "normalization_failure"
+          ]
+        },
+        "message": { "type": "string" },
+        "details": { "type": "object" }
       }
     },
     "extensions": {

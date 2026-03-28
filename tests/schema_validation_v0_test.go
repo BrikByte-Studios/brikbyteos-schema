@@ -377,3 +377,19 @@ func TestNormalizedResultV01_AllowsMissingExtensions(t *testing.T) {
 		t.Fatalf("expected payload without extensions to validate, got error: %v", err)
 	}
 }
+
+func TestNormalizedResultV01_FailureFailedExampleIsValid(t *testing.T) {
+	t.Parallel()
+
+	v := validation.New()
+	result, err := v.ValidateFile(
+		repoPath(t, "schemas/normalized-result/v0.1/schema.json"),
+		repoPath(t, "schemas/normalized-result/v0.1/examples/valid.failure.failed.json"),
+	)
+	if err != nil {
+		t.Fatalf("expected validator execution success, got error: %v", err)
+	}
+	if !result.Valid {
+		t.Fatalf("expected failure example to validate, got issues: %+v", result.Issues)
+	}
+}
