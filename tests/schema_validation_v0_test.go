@@ -393,3 +393,103 @@ func TestNormalizedResultV01_FailureFailedExampleIsValid(t *testing.T) {
 		t.Fatalf("expected failure example to validate, got issues: %+v", result.Issues)
 	}
 }
+
+func TestAuditManifestV01_MinimalExampleIsValid(t *testing.T) {
+	t.Parallel()
+
+	v := validation.New()
+
+	result, err := v.ValidateFile(
+		repoPath(t, "schemas/audit-manifest/v0.1/schema.json"),
+		repoPath(t, "schemas/audit-manifest/v0.1/examples/valid.minimal.json"),
+	)
+	if err != nil {
+		t.Fatalf("expected validator execution success, got error: %v", err)
+	}
+
+	if !result.Valid {
+		t.Fatalf("expected minimal manifest example to validate, got issues: %+v", result.Issues)
+	}
+}
+
+func TestAuditManifestV01_PartialSuccessExampleIsValid(t *testing.T) {
+	t.Parallel()
+
+	v := validation.New()
+
+	result, err := v.ValidateFile(
+		repoPath(t, "schemas/audit-manifest/v0.1/schema.json"),
+		repoPath(t, "schemas/audit-manifest/v0.1/examples/valid.partial-success.json"),
+	)
+	if err != nil {
+		t.Fatalf("expected validator execution success, got error: %v", err)
+	}
+
+	if !result.Valid {
+		t.Fatalf("expected partial success manifest example to validate, got issues: %+v", result.Issues)
+	}
+}
+
+func TestAuditManifestV01_AllowsStructurallyValidArtifactPaths(t *testing.T) {
+	t.Parallel()
+
+	payload := []byte(`{
+		"schema_version": "0.1",
+		"run_id": "20260328T120000Z-a91c2f",
+		"status": "success",
+		"started_at": "2026-03-28T12:00:00Z",
+		"execution_order": [],
+		"adapters": [],
+		"artifacts": {
+			"manifest_path": "/manifest.json",
+			"raw_root": "raw",
+			"normalized_root": "normalized",
+			"logs_root": "logs"
+		}
+	}`)
+
+	v := validation.New()
+	result, err := v.ValidateBytes(
+		repoPath(t, "schemas/audit-manifest/v0.1/schema.json"),
+		payload,
+	)
+	if err != nil {
+		t.Fatalf("expected validator execution success, got error: %v", err)
+	}
+
+	if !result.Valid {
+		t.Fatalf("expected structurally valid payload to pass schema validation, got issues: %+v", result.Issues)
+	}
+}
+
+func TestAuditManifestV01_RejectsDuplicateExecutionOrder(t *testing.T) {
+	t.Parallel()
+
+	payload := []byte(`{
+		"schema_version": "0.1",
+		"run_id": "20260328T120000Z-a91c2f",
+		"status": "in_progress",
+		"started_at": "2026-03-28T12:00:00Z",
+		"execution_order": ["jest", "jest"],
+		"adapters": [],
+		"artifacts": {
+			"manifest_path": "manifest.json",
+			"raw_root": "raw",
+			"normalized_root": "normalized",
+			"logs_root": "logs"
+		}
+	}`)
+
+	v := validation.New()
+	result, err := v.ValidateBytes(
+		repoPath(t, "schemas/audit-manifest/v0.1/schema.json"),
+		payload,
+	)
+	if err != nil {
+		t.Fatalf("expected validator execution success, got error: %v", err)
+	}
+
+	if result.Valid {
+		t.Fatal("expected duplicate execution_order payload to fail validation")
+	}
+}
