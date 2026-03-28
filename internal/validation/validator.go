@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"runtime"
 
 	jsonschema "github.com/santhosh-tekuri/jsonschema/v6"
 )
@@ -155,4 +156,65 @@ func formatInstanceLocation(parts []string) string {
 	}
 
 	return "/" + strings.Join(cleaned, "/")
+}
+
+// ValidateNormalizedResultV01 validates raw JSON bytes against the canonical
+// normalized-result v0.1 schema.
+//
+// This helper gives tests and future consumers a stable, intention-revealing
+// entrypoint instead of requiring each caller to hard-code schema paths.
+func (v *Validator) ValidateNormalizedResultV01(payload []byte) error {
+	result, err := v.ValidateBytes(normalizedResultV01SchemaPath(), payload)
+	if err != nil {
+		return err
+	}
+
+	if result.Valid {
+		return nil
+	}
+
+	return validationIssuesError(
+		"normalized-result v0.1 validation failed",
+		result.Issues,
+	)
+}
+
+// ValidateNormalizedResultV01File validates a JSON file against the canonical
+// normalized-result v0.1 schema.
+func (v *Validator) ValidateNormalizedResultV01File(payloadPath string) (Result, error) {
+	return v.ValidateFile(normalizedResultV01SchemaPath(), payloadPath)
+}
+
+// normalizedResultV01SchemaPath returns the absolute filesystem path to the
+// canonical normalized-result v0.1 schema.
+//
+// The path is resolved relative to this source file rather than the current
+// working directory so tests remain stable across packages.
+func normalizedResultV01SchemaPath() string {
+	_, thisFile, _, ok := runtime.Caller(0)
+	if !ok {
+		panic("failed to resolve validator source path")
+	}
+
+	validationDir := filepath.Dir(thisFile)
+	repoRoot := filepath.Clean(filepath.Join(validationDir, "..", ".."))
+
+	return filepath.Join(
+		repoRoot,
+		"schemas",
+		"normalized-result",
+		"v0.1",
+		"schema.json",
+	)
+}
+
+// validationIssuesError turns normalized validation issues into one stable error.
+// This keeps call sites simple while preserving useful diagnostics.
+func validationIssuesError(prefix string, issues []ValidationIssue) error {
+	if len(issues) == 0 {
+		return fmt.Errorf("%s", prefix)
+	}
+
+	first := issues[0]
+	return fmt.Errorf("%s: %s at %s", prefix, first.Message, first.InstanceLocation)
 }

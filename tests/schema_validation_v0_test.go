@@ -103,8 +103,8 @@ func schemaCases(t *testing.T) []schemaCase {
 
 	return []schemaCase{
 		{
-			name:       "raw-result",
-			schemaPath: repoPath(t, "schemas/raw-result/v0/schema.json"),
+			name:        "raw-result",
+			schemaPath:  repoPath(t, "schemas/raw-result/v0/schema.json"),
 			fixturePath: repoPath(t, "schemas/raw-result/v0/examples/valid.minimal.json"),
 			invalidMutator: func(m map[string]any) {
 				delete(m, "schema_family")
@@ -113,8 +113,8 @@ func schemaCases(t *testing.T) []schemaCase {
 			expectedPathHint: "<root>",
 		},
 		{
-			name:       "normalized-result",
-			schemaPath: repoPath(t, "schemas/normalized-result/v0/schema.json"),
+			name:        "normalized-result",
+			schemaPath:  repoPath(t, "schemas/normalized-result/v0/schema.json"),
 			fixturePath: repoPath(t, "schemas/normalized-result/v0/examples/valid.minimal.json"),
 			invalidMutator: func(m map[string]any) {
 				delete(m, "schema_family")
@@ -123,8 +123,8 @@ func schemaCases(t *testing.T) []schemaCase {
 			expectedPathHint: "<root>",
 		},
 		{
-			name:       "policy-evaluation-result",
-			schemaPath: repoPath(t, "schemas/policy-evaluation-result/v0/schema.json"),
+			name:        "policy-evaluation-result",
+			schemaPath:  repoPath(t, "schemas/policy-evaluation-result/v0/schema.json"),
 			fixturePath: repoPath(t, "schemas/policy-evaluation-result/v0/examples/valid.minimal.json"),
 			invalidMutator: func(m map[string]any) {
 				delete(m, "schema_family")
@@ -133,8 +133,8 @@ func schemaCases(t *testing.T) []schemaCase {
 			expectedPathHint: "<root>",
 		},
 		{
-			name:       "verdict",
-			schemaPath: repoPath(t, "schemas/verdict/v0/schema.json"),
+			name:        "verdict",
+			schemaPath:  repoPath(t, "schemas/verdict/v0/schema.json"),
 			fixturePath: repoPath(t, "schemas/verdict/v0/examples/valid.minimal.json"),
 			invalidMutator: func(m map[string]any) {
 				delete(m, "schema_family")
@@ -143,8 +143,8 @@ func schemaCases(t *testing.T) []schemaCase {
 			expectedPathHint: "<root>",
 		},
 		{
-			name:       "audit-manifest",
-			schemaPath: repoPath(t, "schemas/audit-manifest/v0/schema.json"),
+			name:        "audit-manifest",
+			schemaPath:  repoPath(t, "schemas/audit-manifest/v0/schema.json"),
 			fixturePath: repoPath(t, "schemas/audit-manifest/v0/examples/valid.minimal.json"),
 			invalidMutator: func(m map[string]any) {
 				delete(m, "artifacts")
@@ -208,5 +208,172 @@ func TestRunIdentityV0ExampleIsValid(t *testing.T) {
 
 	if !result.Valid {
 		t.Fatalf("expected run identity example to validate, got issues: %+v", result.Issues)
+	}
+}
+
+func TestNormalizedResultV01_AllowsExtensionsField(t *testing.T) {
+	t.Parallel()
+
+	payload := []byte(`{
+		"schema_version": "0.1",
+		"adapter": {
+			"name": "jest",
+			"type": "unit",
+			"version": "29.7.0"
+		},
+		"execution": {
+			"status": "completed",
+			"duration_ms": 100
+		},
+		"summary": {
+			"status": "pass",
+			"total": 1,
+			"passed": 1,
+			"failed": 0,
+			"skipped": 0
+		},
+		"evidence": {
+			"complete": true,
+			"issues": []
+		},
+		"artifacts": {
+			"raw_stdout_path": "raw/jest/stdout.log",
+			"raw_stderr_path": "raw/jest/stderr.log",
+			"raw_tool_output_path": "raw/jest/tool-output.json"
+		},
+		"extensions": {
+			"jest": {
+				"suite_names": ["auth.spec.ts"]
+			}
+		}
+	}`)
+
+	v := validation.New()
+	if err := v.ValidateNormalizedResultV01(payload); err != nil {
+		t.Fatalf("expected extensions payload to validate, got error: %v", err)
+	}
+}
+
+func TestNormalizedResultV01_RejectsInvalidExtensionNamespace(t *testing.T) {
+	t.Parallel()
+
+	payload := []byte(`{
+		"schema_version": "0.1",
+		"adapter": {
+			"name": "jest",
+			"type": "unit",
+			"version": "29.7.0"
+		},
+		"execution": {
+			"status": "completed",
+			"duration_ms": 100
+		},
+		"summary": {
+			"status": "pass",
+			"total": 1,
+			"passed": 1,
+			"failed": 0,
+			"skipped": 0
+		},
+		"evidence": {
+			"complete": true,
+			"issues": []
+		},
+		"artifacts": {
+			"raw_stdout_path": "raw/jest/stdout.log",
+			"raw_stderr_path": "raw/jest/stderr.log",
+			"raw_tool_output_path": "raw/jest/tool-output.json"
+		},
+		"extensions": {
+			"Jest": {
+				"suite_names": ["auth.spec.ts"]
+			}
+		}
+	}`)
+
+	v := validation.New()
+	if err := v.ValidateNormalizedResultV01(payload); err == nil {
+		t.Fatal("expected invalid extension namespace to fail validation")
+	}
+}
+
+func TestNormalizedResultV01_RejectsAlternativeTopLevelExtensionFields(t *testing.T) {
+	t.Parallel()
+
+	payload := []byte(`{
+		"schema_version": "0.1",
+		"adapter": {
+			"name": "jest",
+			"type": "unit",
+			"version": "29.7.0"
+		},
+		"execution": {
+			"status": "completed",
+			"duration_ms": 100
+		},
+		"summary": {
+			"status": "pass",
+			"total": 1,
+			"passed": 1,
+			"failed": 0,
+			"skipped": 0
+		},
+		"evidence": {
+			"complete": true,
+			"issues": []
+		},
+		"artifacts": {
+			"raw_stdout_path": "raw/jest/stdout.log",
+			"raw_stderr_path": "raw/jest/stderr.log",
+			"raw_tool_output_path": "raw/jest/tool-output.json"
+		},
+		"adapterSpecific": {
+			"jest": {
+				"suite_names": ["auth.spec.ts"]
+			}
+		}
+	}`)
+
+	v := validation.New()
+	if err := v.ValidateNormalizedResultV01(payload); err == nil {
+		t.Fatal("expected unsupported top-level extension field to fail validation")
+	}
+}
+
+func TestNormalizedResultV01_AllowsMissingExtensions(t *testing.T) {
+	t.Parallel()
+
+	payload := []byte(`{
+		"schema_version": "0.1",
+		"adapter": {
+			"name": "jest",
+			"type": "unit",
+			"version": "29.7.0"
+		},
+		"execution": {
+			"status": "completed",
+			"duration_ms": 100
+		},
+		"summary": {
+			"status": "pass",
+			"total": 1,
+			"passed": 1,
+			"failed": 0,
+			"skipped": 0
+		},
+		"evidence": {
+			"complete": true,
+			"issues": []
+		},
+		"artifacts": {
+			"raw_stdout_path": "raw/jest/stdout.log",
+			"raw_stderr_path": "raw/jest/stderr.log",
+			"raw_tool_output_path": "raw/jest/tool-output.json"
+		}
+	}`)
+
+	v := validation.New()
+	if err := v.ValidateNormalizedResultV01(payload); err != nil {
+		t.Fatalf("expected payload without extensions to validate, got error: %v", err)
 	}
 }
