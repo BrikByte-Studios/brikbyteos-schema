@@ -10,8 +10,7 @@
     "execution",
     "summary",
     "evidence",
-    "artifacts",
-    "extensions"
+    "artifacts"
   ],
   "properties": {
     "schema_version": {
@@ -89,12 +88,13 @@
     },
     "extensions": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["adapter_specific"],
-      "properties": {
-        "adapter_specific": {
-          "type": "object"
-        }
+      "description": "Optional adapter-scoped extension data. Consumers may ignore this field safely.",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      },
+      "additionalProperties": {
+        "type": "object"
       }
     }
   }
