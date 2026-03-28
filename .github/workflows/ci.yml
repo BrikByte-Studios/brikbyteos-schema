@@ -89,4 +89,4 @@ jobs:
           test -f docs/governance/policy-evaluation-result-v0-notes.md
           test -f docs/governance/verdict-v0-notes.md
           test -f docs/governance/audit-manifest-v0-notes.md
-          test -f docs/governance/schema-versioning-strategy.mdcd 
+          test -f docs/governance/schema-versioning-strategy.md
