@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.brikbyteos.dev/phase0/manifest.schema.json",
+  "title": "BrikByteOS Phase 0 Manifest",
+  "description": "Canonical Phase 0 run summary artifact for BrikByteOS. This schema defines the authoritative persisted manifest structure used for lifecycle-aware run inspection, artifact discovery, and downstream deterministic processing.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "started_at",
+    "overall_status",
+    "selection",
+    "adapter_summaries",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1",
+      "description": "Explicit manifest contract version for Phase 0."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Canonical run identifier for this execution."
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC start timestamp for the run, persisted using the approved time format contract."
+    },
+    "finished_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC finish timestamp for terminal lifecycle states. Omitted for in-progress states."
+    },
+    "overall_status": {
+      "type": "string",
+      "enum": ["pending", "running", "completed", "failed", "partial"],
+      "description": "Canonical run-level lifecycle status for Phase 0."
+    },
+    "selection": {
+      "type": "object",
+      "description": "Selection summary describing how adapters were requested and what the system resolved.",
+      "additionalProperties": false,
+      "required": ["mode", "requested_adapters", "resolved_adapters"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["all", "explicit"],
+          "description": "Selection mode for the run."
+        },
+        "requested_adapters": {
+          "type": "array",
+          "description": "Normalized list of explicitly requested adapters. May be empty for all/default selection mode.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "resolved_adapters": {
+          "type": "array",
+          "description": "Canonical resolved adapter set for the run.",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "adapter_summaries": {
+      "type": "array",
+      "description": "Bounded per-adapter execution summary list for the run.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "type",
+          "status",
+          "has_raw_artifacts",
+          "has_normalized"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Canonical adapter name."
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Adapter type classification."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "running", "succeeded", "failed", "skipped"],
+            "description": "Bounded adapter execution summary status."
+          },
+          "exit_code": {
+            "type": "integer",
+            "description": "Optional process exit code for terminal adapter execution."
+          },
+          "normalized_status": {
+            "type": "string",
+            "description": "Optional normalization outcome status."
+          },
+          "has_raw_artifacts": {
+            "type": "boolean",
+            "description": "Whether raw artifacts were produced for this adapter."
+          },
+          "has_normalized": {
+            "type": "boolean",
+            "description": "Whether a normalized result artifact exists for this adapter."
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "description": "Canonical run-scoped and adapter-scoped artifact references. Paths must remain relative to the run root.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "scope", "path"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "manifest",
+              "raw_stdout",
+              "raw_stderr",
+              "raw_meta",
+              "raw_payload",
+              "normalized_result",
+              "execution_log"
+            ],
+            "description": "Bounded artifact kind vocabulary."
+          },
+          "scope": {
+            "type": "string",
+            "enum": ["run", "adapter"],
+            "description": "Whether the artifact belongs to the run as a whole or to a specific adapter."
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\.\\.).+$",
+            "description": "Relative artifact path from the run root. Absolute paths and path traversal are forbidden."
+          },
+          "adapter_name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Required when scope is adapter."
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "scope": {
+                  "const": "adapter"
+                }
+              },
+              "required": ["scope"]
+            },
+            "then": {
+              "required": ["adapter_name"]
+            }
+          }
+        ]
+      }
+    }
+  }
+}
