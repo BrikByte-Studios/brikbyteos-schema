@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.brikbyteos.dev/verdict.schema.json",
+  "title": "BrikByteOS Phase 0 Verdict Model",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "approved_score_threshold",
+    "conditional_score_threshold",
+    "policy_deny_always_rejects",
+    "policy_allow_required_non_deny",
+    "conditional_requires_review",
+    "conditional_never_from_policy_deny",
+    "approved_never_from_policy_deny"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "approved_score_threshold": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "conditional_score_threshold": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "policy_deny_always_rejects": {
+      "type": "boolean",
+      "const": true
+    },
+    "policy_allow_required_non_deny": {
+      "type": "boolean",
+      "const": true
+    },
+    "conditional_requires_review": {
+      "type": "boolean",
+      "const": true
+    },
+    "conditional_never_from_policy_deny": {
+      "type": "boolean",
+      "const": true
+    },
+    "approved_never_from_policy_deny": {
+      "type": "boolean",
+      "const": true
+    }
+  }
+}
