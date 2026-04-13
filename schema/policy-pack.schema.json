@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.brikbyteos.dev/policy-pack.schema.json",
+  "title": "BrikByteOS Phase 0 Policy Pack Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "api_version",
+    "kind",
+    "name",
+    "version",
+    "description",
+    "entrypoint",
+    "modules",
+    "config"
+  ],
+  "properties": {
+    "api_version": {
+      "type": "string",
+      "const": "brikbyteos/v0"
+    },
+    "kind": {
+      "type": "string",
+      "const": "PolicyPack"
+    },
+    "name": {
+      "type": "string",
+      "const": "production"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "entrypoint": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)+$"
+    },
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^(?!/)(?!.*\\.\\.)(?!.*[*?\\[]).+\\.rego$"
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_performance_threshold_breaches"
+      ],
+      "properties": {
+        "max_performance_threshold_breaches": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

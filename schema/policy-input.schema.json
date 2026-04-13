@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.brikbyteos.dev/policy-input.schema.json",
+  "title": "BrikByteOS Phase 0 OPA Policy Input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "score",
+    "evidence",
+    "run"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "score": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_version",
+        "score",
+        "risk_factors"
+      ],
+      "properties": {
+        "model_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "risk_factors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "domain",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 1
+              },
+              "domain": {
+                "type": "string",
+                "minLength": 1
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit",
+        "ui",
+        "performance",
+        "security"
+      ],
+      "properties": {
+        "unit": {
+          "$ref": "#/$defs/unitEvidence"
+        },
+        "ui": {
+          "$ref": "#/$defs/uiEvidence"
+        },
+        "performance": {
+          "$ref": "#/$defs/performanceEvidence"
+        },
+        "security": {
+          "$ref": "#/$defs/securityEvidence"
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "selection_mode",
+        "requested_adapters",
+        "resolved_adapters",
+        "status"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "selection_mode": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requested_adapters": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "resolved_adapters": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "$defs": {
+    "unitEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "present",
+        "summary"
+      ],
+      "properties": {
+        "present": { "type": "boolean" },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total_tests",
+            "passed_tests",
+            "failed_tests",
+            "pass_rate"
+          ],
+          "properties": {
+            "total_tests": { "type": "integer", "minimum": 0 },
+            "passed_tests": { "type": "integer", "minimum": 0 },
+            "failed_tests": { "type": "integer", "minimum": 0 },
+            "pass_rate": { "type": "integer", "minimum": 0, "maximum": 100 }
+          }
+        }
+      }
+    },
+    "uiEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "present",
+        "summary"
+      ],
+      "properties": {
+        "present": { "type": "boolean" },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total_specs",
+            "passed_specs",
+            "failed_specs"
+          ],
+          "properties": {
+            "total_specs": { "type": "integer", "minimum": 0 },
+            "passed_specs": { "type": "integer", "minimum": 0 },
+            "failed_specs": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "performanceEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "present",
+        "summary"
+      ],
+      "properties": {
+        "present": { "type": "boolean" },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "breached_thresholds"
+          ],
+          "properties": {
+            "breached_thresholds": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "securityEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "present",
+        "summary"
+      ],
+      "properties": {
+        "present": { "type": "boolean" },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "critical",
+            "high",
+            "medium",
+            "low"
+          ],
+          "properties": {
+            "critical": { "type": "integer", "minimum": 0 },
+            "high": { "type": "integer", "minimum": 0 },
+            "medium": { "type": "integer", "minimum": 0 },
+            "low": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    }
+  }
+}
